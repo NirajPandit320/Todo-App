@@ -69,6 +69,25 @@ section h1 {
   text-align: center;
 }
 
+.todo-meta {
+  font-size: 1.6rem;
+  margin-top: 0.8rem;
+  color: #c6dde6;
+}
+
+.todo-error {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  color: #ffb3a9;
+}
+
+.todo-empty {
+  list-style: none;
+  font-size: 1.7rem;
+  margin-top: 2rem;
+  color: #d2e4eb;
+}
+
 /* form */
 form {
   display: flex;
@@ -161,6 +180,11 @@ span {
 li span {
   max-width: 20rem;
   color: #1c2833;
+}
+
+.todo-item.completed span {
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .check-btn,

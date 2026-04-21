@@ -1,75 +1,127 @@
 import "./Todo.css";
-import {useEffect, useState} from "react";
-import { MdCheck } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+import { useEffect, useMemo, useState } from "react";
+import { TodoForm } from "./TodoForm";
+import { TodoList } from "./TodoList";
+import { TodoDate } from "./TodoDate";
+
+const STORAGE_KEY = "todo:tasks:v1";
+
 export const Todo = () => {
-  const[inputValue,setInputValue]=useState("");
-  const[task,setTask]=useState([]);
-  const[dateTime,setDateTime]=useState("");
-  
-  
+  const [task, setTask] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const parsed = stored ? JSON.parse(stored) : [];
 
-const handleInputChange=(value)=>{
-  setInputValue(value);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
 
-}
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    if (!inputValue) return;
+      return parsed.filter(
+        (item) =>
+          item &&
+          typeof item.id === "string" &&
+          typeof item.content === "string" &&
+          typeof item.completed === "boolean",
+      );
+    } catch {
+      return [];
+    }
+  });
+  const [errorMessage, setErrorMessage] = useState("");
 
-    if (task.includes(inputValue)) {
-      alert("Task already exists");
-      setInputValue("");
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(task));
+  }, [task]);
+
+  const taskCount = task.length;
+  const remainingCount = useMemo(
+    () => task.filter((item) => !item.completed).length,
+    [task],
+  );
+
+  const handleFormSubmit = (rawInputValue) => {
+    const inputValue = rawInputValue.trim();
+    if (!inputValue) {
+      setErrorMessage("Task cannot be empty.");
       return;
     }
-    setTask((prevTask) => [...prevTask, inputValue]);
-    setInputValue("");
-  }
 
-//todo date and time 
+    const hasDuplicate = task.some(
+      (item) => item.content.toLowerCase() === inputValue.toLowerCase(),
+    );
 
-useEffect(() => {
-  const interval =  setInterval(() => {
-  const now=new Date();
-  const formattedDate=now.toLocaleDateString();
-  const formattedTime=now.toLocaleTimeString();
-  setDateTime(`${formattedDate} - ${formattedTime}`);
-  
-}, 1000);
-return()=>clearInterval(interval);
-},[]);
+    if (hasDuplicate) {
+      setErrorMessage("Task already exists.");
+      return;
+    }
 
-return(
-  <section className="todo-container">
-    <header>
-    <h1>Todo List</h1>
-    <h2 className="date-time">{dateTime}</h2>
-    </header>
-    <section className="form">
-      <form onSubmit={handleFormSubmit}>
-        <div>
-          <input type="text" className="todo-input" autoComplete="off" value={inputValue} onChange={(event)=>{handleInputChange(event.target.value)}} />
-        </div>
-        <div>
-          <button type="submit" className="todo-btn">
-            Add Task
-          </button>
-        </div>
-      </form>
+    setTask((prevTask) => [
+      ...prevTask,
+      {
+        id: crypto.randomUUID(),
+        content: inputValue,
+        completed: false,
+      },
+    ]);
+    setErrorMessage("");
+  };
+
+  const handleDeleteToDo = (id) => {
+    setTask((prevTask) => prevTask.filter((curTask) => curTask.id !== id));
+  };
+
+  const handleToggleTodo = (id) => {
+    setTask((prevTask) =>
+      prevTask.map((item) =>
+        item.id === id ? { ...item, completed: !item.completed } : item,
+      ),
+    );
+  };
+
+  const handleClearTodoData = () => {
+    setTask([]);
+    setErrorMessage("");
+  };
+
+  return (
+    <section className="todo-container">
+      <header>
+        <h1>Todo List</h1>
+        <TodoDate />
+        <p className="todo-meta">
+          {remainingCount} remaining / {taskCount} total
+        </p>
+      </header>
+
+      <TodoForm onAddTodo={handleFormSubmit} />
+      {errorMessage ? (
+        <p className="todo-error" role="alert">
+          {errorMessage}
+        </p>
+      ) : null}
+
+      <section>
+        <ul>
+          {task.length === 0 ? (
+            <li className="todo-empty">No tasks yet. Add your first task.</li>
+          ) : (
+            task.map((curTask) => (
+              <TodoList
+                key={curTask.id}
+                todo={curTask}
+                onHandleDeleteTodo={handleDeleteToDo}
+                onHandleToggleTodo={handleToggleTodo}
+              />
+            ))
+          )}
+        </ul>
+      </section>
+
+      <section>
+        <button className="clear-btn" onClick={handleClearTodoData}>
+          Clear All
+        </button>
+      </section>
     </section>
-    <section>
-      <ul>
-       {task.map((curTask,index)=>{
-          return <li key={index} className="todo-item"> 
-          <span>{curTask}</span> 
-          <button className="check-btn"><MdDelete /></button>
-          <button className="delete-btn"><MdCheck /></button>
-          </li>
-       }
-
-      )}
-      </ul>
-    </section>
-  </section>
-);
-}
+  );
+};
