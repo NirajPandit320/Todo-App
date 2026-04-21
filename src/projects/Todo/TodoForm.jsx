@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiPlus } from "react-icons/fi";
 
 export const TodoForm = ({ onAddTodo }) => {
   const [inputValue, setInputValue] = useState("");
@@ -21,14 +22,14 @@ export const TodoForm = ({ onAddTodo }) => {
   };
 
   return (
-    <section className="form">
-      <form onSubmit={handleFormSubmit}>
+    <section className="todo-form-panel">
+      <form className="todo-form" onSubmit={handleFormSubmit}>
         <div>
           <input
             type="text"
             className="todo-input"
             autoComplete="off"
-            placeholder="Enter a task"
+            placeholder="Enter your next priority"
             aria-label="Task name"
             value={inputValue}
             onChange={(event) => handleInputChange(event.target.value)}
@@ -37,6 +38,7 @@ export const TodoForm = ({ onAddTodo }) => {
 
         <div>
           <button type="submit" className="todo-btn">
+            <FiPlus aria-hidden="true" />
             Add Task
           </button>
         </div>

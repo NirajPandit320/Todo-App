@@ -2,16 +2,7 @@ import { MdCheck, MdDelete } from "react-icons/md";
 export const TodoList = ({ todo, onHandleDeleteTodo, onHandleToggleTodo }) => {
   return (
     <li className={`todo-item ${todo.completed ? "completed" : ""}`}>
-      <span>{todo.content}</span>
-
-      <button
-        type="button"
-        className="delete-btn"
-        aria-label={`Delete ${todo.content}`}
-        onClick={() => onHandleDeleteTodo(todo.id)}
-      >
-        <MdDelete />
-      </button>
+      <span className="task-text">{todo.content}</span>
 
       <button
         type="button"
@@ -20,6 +11,15 @@ export const TodoList = ({ todo, onHandleDeleteTodo, onHandleToggleTodo }) => {
         onClick={() => onHandleToggleTodo(todo.id)}
       >
         <MdCheck />
+      </button>
+
+      <button
+        type="button"
+        className="delete-btn"
+        aria-label={`Delete ${todo.content}`}
+        onClick={() => onHandleDeleteTodo(todo.id)}
+      >
+        <MdDelete />
       </button>
     </li>
   );

@@ -1,5 +1,7 @@
 import "./Todo.css";
 import { useEffect, useMemo, useState } from "react";
+import { FiCheckCircle, FiClipboard, FiTarget } from "react-icons/fi";
+import { MdDeleteSweep } from "react-icons/md";
 import { TodoForm } from "./TodoForm";
 import { TodoList } from "./TodoList";
 import { TodoDate } from "./TodoDate";
@@ -38,6 +40,7 @@ export const Todo = () => {
     () => task.filter((item) => !item.completed).length,
     [task],
   );
+  const completedCount = taskCount - remainingCount;
 
   const handleFormSubmit = (rawInputValue) => {
     const inputValue = rawInputValue.trim();
@@ -85,43 +88,78 @@ export const Todo = () => {
 
   return (
     <section className="todo-container">
-      <header>
-        <h1>Todo List</h1>
-        <TodoDate />
-        <p className="todo-meta">
-          {remainingCount} remaining / {taskCount} total
-        </p>
-      </header>
+      <div className="todo-shell">
+        <header className="todo-header">
+          <div>
+            <p className="todo-kicker">Professional Task Manager</p>
+            <h1>Execution Dashboard</h1>
+            <p className="todo-subtitle">
+              Capture priorities, track momentum, and finish with confidence.
+            </p>
+          </div>
+          <TodoDate />
+        </header>
 
-      <TodoForm onAddTodo={handleFormSubmit} />
-      {errorMessage ? (
-        <p className="todo-error" role="alert">
-          {errorMessage}
-        </p>
-      ) : null}
+        <section className="todo-stats" aria-label="Task summary">
+          <article className="stat-card">
+            <FiClipboard aria-hidden="true" />
+            <div>
+              <p>Total Tasks</p>
+              <strong>{taskCount}</strong>
+            </div>
+          </article>
+          <article className="stat-card">
+            <FiTarget aria-hidden="true" />
+            <div>
+              <p>Remaining</p>
+              <strong>{remainingCount}</strong>
+            </div>
+          </article>
+          <article className="stat-card">
+            <FiCheckCircle aria-hidden="true" />
+            <div>
+              <p>Completed</p>
+              <strong>{completedCount}</strong>
+            </div>
+          </article>
+        </section>
 
-      <section>
-        <ul>
-          {task.length === 0 ? (
-            <li className="todo-empty">No tasks yet. Add your first task.</li>
-          ) : (
-            task.map((curTask) => (
-              <TodoList
-                key={curTask.id}
-                todo={curTask}
-                onHandleDeleteTodo={handleDeleteToDo}
-                onHandleToggleTodo={handleToggleTodo}
-              />
-            ))
-          )}
-        </ul>
-      </section>
+        <TodoForm onAddTodo={handleFormSubmit} />
+        {errorMessage ? (
+          <p className="todo-error" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
 
-      <section>
-        <button className="clear-btn" onClick={handleClearTodoData}>
-          Clear All
-        </button>
-      </section>
+        <section className="todo-list-wrap">
+          <ul className="todo-list">
+            {task.length === 0 ? (
+              <li className="todo-empty">No tasks yet. Add your first task.</li>
+            ) : (
+              task.map((curTask) => (
+                <TodoList
+                  key={curTask.id}
+                  todo={curTask}
+                  onHandleDeleteTodo={handleDeleteToDo}
+                  onHandleToggleTodo={handleToggleTodo}
+                />
+              ))
+            )}
+          </ul>
+        </section>
+
+        <section className="todo-actions">
+          <button
+            type="button"
+            className="clear-btn"
+            onClick={handleClearTodoData}
+            disabled={taskCount === 0}
+          >
+            <MdDeleteSweep />
+            Clear All
+          </button>
+        </section>
+      </div>
     </section>
   );
 };
